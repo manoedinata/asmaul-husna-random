@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 import json
 import random
 
@@ -21,12 +21,19 @@ def home():
 @app.route("/random")
 def random_choice():
     data = get_data()
+    result_num = request.args.get("result_num")
 
     lowest_num = data[0]["nomor"] # Elemen pertama
     highest_num = data[-1]["nomor"] # Elemen terakhir
-    randomChoice = random.randrange(lowest_num, highest_num+1)
+    randomChoice = []
+    if result_num:
+        randomNumbers = random.sample(range(lowest_num, highest_num+1), int(result_num))
+        randomChoice = [data[x - 1] for x in randomNumbers]
+    else:
+        randomNumbers = random.randrange(lowest_num, highest_num+1)
+        randomChoice.append(data[randomNumbers - 1])
 
-    return jsonify(data[randomChoice - 1])
+    return jsonify(randomChoice)
 
 if __name__ == "__main__":
     app.run()
